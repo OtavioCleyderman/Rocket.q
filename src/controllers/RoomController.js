@@ -51,10 +51,29 @@ module.exports = {
     res.render('room', { roomId: roomId, questions: questions, questionsRead: questionsRead, isNoQuestions: isNoQuestions })
   },
 
-  enter(req, res) {
-    const roomId = req.body.roomId
+  // enter(req, res) {
+  //   const roomId = req.body.roomId
 
-    res.redirect(`/room/${roomId}`)
+  //   res.redirect(`/room/${roomId}`)
+  // }
+
+  async enter(req, res) {
+    const db = await Database()
+    const roomId = req.body.roomId
+    let isRoom = false
+
+    /* Verifica se a sala já existe */
+    const roomsExistIds = await db.all(`SELECT id FROM rooms`)
+    isRoom = roomsExistIds.some((roomExistId) => roomExistId.id == roomId)
+
+    if (isRoom) {
+      res.redirect(`/room/${roomId}`)  // Se existir, então entra na sala
+    } else {
+      res.render('non-existentroom') // Se não existir dará um alerta de número da sala inválido e retorna a página principal
+    }
+
+    await db.close()
+
   }
 
 
